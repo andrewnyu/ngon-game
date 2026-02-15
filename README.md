@@ -36,6 +36,45 @@ The window opens at 1024×768 with the title **WordMap**.
 - **Refreshes:** 10 board refreshes  
 - **Clears:** 60 single-letter clears  
 
+## Mathematics of NGon generation
+
+Each letter tile is a **regular N-gon** (polygon with \(n\) equal sides and angles). The number of sides \(n\) is chosen at random in \([4, 16]\) per tile and also equals the **tile’s score**. The shape is determined by a target **area** (`size`) and the **center** \((x, y)\).
+
+### Side length from area
+
+For a regular \(n\)-gon with area `size`, the **side length** \(s\) is:
+
+\[
+s = \sqrt{\frac{2 \cdot \mathrm{size} \cdot \tan(180°/n)}{n}}
+\]
+
+This comes from the area formula for a regular polygon: area = \(\frac{1}{2} n \cdot s \cdot a\) with apothem \(a\), and the relation between \(s\) and \(a\) below.
+
+### Apothem
+
+The **apothem** \(a\) is the distance from the center to the midpoint of any side:
+
+\[
+a = \frac{s}{2 \tan(180°/n)}
+\]
+
+The game uses this for **click detection**: a click at \((p_x, p_y)\) is inside the NGon if \(|p_x - x| \le a\) and \(|p_y - y| \le a\) (bounding-box style test).
+
+### Vertex positions
+
+Vertices are built by walking around the polygon. The first vertex is at the **top** of the polygon: \((x,\, y - a)\). Each subsequent vertex is reached by stepping **side length** \(s\) in the direction of the \(i\)-th exterior angle:
+
+- Start: \((x - s/2,\; y - a)\)
+- For \(i = 0, 1, \ldots, n\!-\!1\): add \(\bigl(s \cos(360° \cdot i / n),\; s \sin(360° \cdot i / n)\bigr)\) to get the next vertex.
+
+So the polygon is drawn with one vertex at the top and edges of length \(s\) turning by \(360°/n\) at each vertex.
+
+### Color
+
+Color is chosen from \(n\): for \(n \le 16\), RGB is \(\bigl(\lfloor 210 \cdot n/16 \rfloor,\; 45,\; 210 - \lfloor 210 \cdot n/16 \rfloor\bigr)\) (red–blue gradient); for \(n > 16\) the tile is drawn in blue.
+
+---
+
 ## Project Structure
 
 | File         | Role |
